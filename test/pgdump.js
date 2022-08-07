@@ -8,8 +8,8 @@ const sinon = require('sinon')
 chai.use(chaiAsPromised)
 const { expect } = chai
 
-const pgdump = require('../lib/pgdump')
-const defaultConfig = require('../lib/config')
+const pgdump = require('../src/lib/pgdump')
+const defaultConfig = require('../src/lib/config')
 
 describe('pgdump', () => {
     it('should export a function', () => {

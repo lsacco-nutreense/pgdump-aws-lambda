@@ -7,72 +7,42 @@ An AWS Lambda function that runs pg_dump and streams the output to s3.
 
 It can be configured to run periodically using CloudWatch events.
 
-## Quick start
+This Lambda has been modified to store all the database parameters in a Gruntfile and to pull
+the secrets needed from the encrypted AWS parameter store.
 
-1. Create an AWS lambda function:
-    - Author from scratch
-    - Runtime: Node.js 14.x
-2. tab "Code" -> "Upload from" -> ".zip file":
-    - Upload ([pgdump-aws-lambda.zip](https://github.com/jameshy/pgdump-aws-lambda/releases/latest))
-    - tab "Configuration" -> "General Configuration" -> "Edit"
-        - Timeout: 15 minutes
-        - Edit the role and attach the policy "AmazonS3FullAccess"
-    - Save
-3. Test
-    - Create new test event, e.g.:
-    ```json
-    {
-        "PGDATABASE": "dbname",
-        "PGUSER": "postgres",
-        "PGPASSWORD": "password",
-        "PGHOST": "host",
-        "S3_BUCKET" : "db-backups",
-        "ROOT": "hourly-backups"
-    }
-    ```
-    - *Test* and check the output
+## Usage
 
-4. Create a CloudWatch rule:
-    - Event Source: Schedule -> Fixed rate of 1 hour
-    - Targets: Lambda Function (the one created in step #1)
-    - Configure input -> Constant (JSON text) and paste your config (as per previous step)
+Simply deploy the lambda and refer to the Event Bridge rule that uses a schedule to run this backup.
+
+### Deployment
+
+To deploy, you will need to set your local AWS AccessKey/Secret to the one found in LastPass: daisyaws-nonprod-lambda-deployer.
+This example is made to work with the Serverless Framework dashboard which includes advanced features like CI/CD, monitoring, metrics, etc.
+
+```
+npm run deploy:[local|nonprod|prod]
+```
+
 
 
 #### File Naming
 
 This function will store your backup with the following s3 key:
 
-s3://${S3_BUCKET}${ROOT}/YYYY-MM-DD/YYYY-MM-DD@HH-mm-ss.backup
-
-#### AWS Firewall
-
-- If you run the Lambda function outside a VPC, you must enable public access to your database instance, a non VPC Lambda function executes on the public internet.
-- If you run the Lambda function inside a VPC, you must allow access from the Lambda Security Group to your database instance. Also you must either add a NAT gateway ([chargeable](https://aws.amazon.com/vpc/pricing/)) to your VPC so the Lambda can connect to S3 over the Internet, or add an [S3 VPC endpoint (free)](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html) and allow traffic to the appropriate S3 prefixlist.
+s3://${S3_BUCKET}${ROOT}/YYYY-MM-DD/YYYY-MMM-DD@HH:mm:ss.backup
 
 #### Encryption
 
-You can add an encryption key to your event, e.g.
+This backup is encrypted and the Encryption Key can be found in LastPass and the AWS Parameter store.
 
-```json
-{
-    "PGDATABASE": "dbname",
-    "PGUSER": "postgres",
-    "PGPASSWORD": "password",
-    "PGHOST": "host",
-    "S3_BUCKET" : "db-backups",
-    "ROOT": "hourly-backups",
-    "ENCRYPT_KEY": "c0d71d7ae094bdde1ef60db8503079ce615e71644133dc22e9686dc7216de8d0"
-}
-```
-
-The key should be exactly 64 hex characters (32 hex bytes).
+If you recreate it, the key should be exactly 64 hex characters (32 hex bytes).
 
 When this key is present the function will do streaming encryption directly from pg_dump -> S3.
 
 It uses the aes-256-cbc encryption algorithm with a random IV for each backup file.
 The IV is stored alongside the backup in a separate file with the .iv extension.
 
-You can decrypt such a backup with the following bash command:
+To decrypt the backup, download both files, and run the following bash command:
 
 ```bash
 openssl enc -aes-256-cbc -d \
@@ -138,11 +108,3 @@ scp -i ~/aws.pem ec2-user@18.157.84.236:/usr/pgsql-13/lib/libpq.so.5 ./bin/postg
     "PGDUMP_PATH": "bin/postgres-13.3"
 }
 ```
-
-#### Creating a new function zip
-
-`npm run deploy`
-
-#### Contributing
-
-Please submit issues and PRs.

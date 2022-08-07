@@ -1,25 +1,41 @@
 {
-  "name": "pgdump-aws-lambda",
-  "version": "1.4.1",
+  "name": "daisy-pgdump-lambda",
+  "version": "1.0.0",
   "description": "Lambda function for executing pg_dump and streaming the output to s3.",
-  "main": "index.js",
+  "main": "src/handlers/handler.js",
+  "author": "James Hutchby (original); Lou Sacco (modified for daisy)",
+  "private": true,
+  "homepage": "https://github.com/jameshy/pgdump-aws-lambda#readme",
   "dependencies": {
-    "moment": "2.29.1"
+    "aws-sdk": "^2.1189.0",
+    "moment": "2.29.1",
+    "nconf": "^0.12.0"
   },
   "devDependencies": {
-    "aws-sdk": "2.925.0",
     "aws-sdk-mock": "5.1.0",
-    "chai": "4.3.4",
+    "chai": "^4.3.4",
     "chai-as-promised": "7.1.1",
     "coveralls": "3.1.0",
-    "eslint": "7.28.0",
-    "eslint-config-airbnb": "18.2.1",
-    "eslint-config-airbnb-base": "14.2.1",
-    "eslint-plugin-import": "2.23.4",
-    "mocha": "9.0.0",
+    "@nutreense/config-leaf": "^0.4.0",
+    "chai-match": "^1.1.1",
+    "eslint": "^7.29.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-mocha": "^9.0.0",
+    "grunt": "^1.4.1",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-string-replace": "^1.3.1",
+    "husky": "^7.0.0",
+    "mocha": "^9.0.1",
+    "mocha-cli": "^1.0.1",
+    "mocha-teamcity-reporter": "^4.1.0",
+    "nock": "^13.1.0",
+    "nyc": "15.1.0",
+    "serverless-functions-base-path": "^1.0.32",
     "mock-spawn": "0.2.6",
     "mockdate": "3.0.5",
-    "nyc": "15.1.0",
     "rewire": "5.0.0",
     "sinon": "11.1.1",
     "tmp": "0.2.1"
@@ -30,23 +46,18 @@
     "coverage": "NODE_ENV=test nyc --reporter=text mocha test",
     "coveralls": "NODE_ENV=test nyc --reporter=text-lcov mocha test | coveralls",
     "coverage-html": "NODE_ENV=test nyc --reporter=html --reporter=text mocha test",
-    "deploy": "bin/makezip.sh"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jameshy/pgdump-aws-lambda.git"
-  },
-  "keywords": [
-    "lambda",
-    "s3",
-    "pg_dump",
-    "postgresql",
-    "backup"
-  ],
-  "author": "James Hutchby",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jameshy/pgdump-aws-lambda/issues"
-  },
-  "homepage": "https://github.com/jameshy/pgdump-aws-lambda#readme"
+    "lint": "node node_modules/eslint/bin/eslint.js \"**/*.js\" --fix",
+    "deploy:local": "grunt dev;npm run deploy:serverless",
+    "deploy:nonprod": "grunt test;npm run deploy:serverless",
+    "deploy:prod": "grunt prod;npm run deploy:serverless",
+    "deploy:serverless": "serverless deploy",
+    "deploy:serverless:prod": "serverless deploy --aws-profile prod-profile",
+    "undeploy:local": "serverless remove --stage local",
+    "test-html": "NODE_ENV=test nyc --reporter=html mocha tests/**/*.spec.js --timeout 10000 --exit",
+    "teamcity:reporter": "NODE_ENV=test nyc --reporter=teamcity mocha --reporter mocha-teamcity-reporter tests/**/*.spec.js --timeout 10000 --exit",
+    "all:reporters": "nyc npm test",
+    "encrypt": "encrypt Gruntfile.js Gruntfile.js.enc",
+    "decrypt": "decrypt Gruntfile.js.enc Gruntfile.js",
+    "prepare": "husky install"
+  }
 }

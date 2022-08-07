@@ -14,7 +14,7 @@ chai.should()
 chai.use(chaiAsPromised)
 
 const handler = rewire('../lib/handler')
-const pgdump = require('../lib/pgdump')
+const pgdump = require('../src/lib/pgdump')
 
 describe('Handler', () => {
     function mockPgDumpSuccess() {

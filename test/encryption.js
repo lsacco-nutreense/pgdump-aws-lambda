@@ -1,7 +1,7 @@
 const fs = require('fs')
 const tmp = require('tmp')
 const { expect } = require('chai')
-const encryption = require('../lib/encryption')
+const encryption = require('../src/lib/encryption')
 
 
 function waitForStream(stream) {

@@ -1,0 +1,47 @@
+service: daisydb-pgdump-lambda
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: '20201221'
+  memorySize: 256
+  timeout: 900
+  iam:
+    role: $ARN_ROLE
+  region: $AWS_REGION
+  stage: $STAGE
+  vpc:
+    securityGroupIds: $SECURITY_GROUP_IDS
+    subnetIds: $SUBNET_IDS
+  httpApi:
+    useProviderTags: true
+  endpointType: REGIONAL
+  logs:
+    httpApi: true
+  deploymentBucket:
+    name: $S3_BUCKET
+    serverSideEncryption: AES256
+package:
+  excludeDevDependencies: true
+  exclude:
+    - Gruntfile.js
+    - test
+    - conf
+    - node_modules
+  include:
+    - bin
+custom:
+  functionsBasePath: src/handlers
+functions:
+  pgdump:
+    handler: handler.main
+    description: 'RDS PGSQL Backup Script'
+    events:
+      - schedule:
+          name: RDSDaisyDBHourlyBackup
+          rate: rate(60 minutes)
+          enabled: true
+plugins:
+  - serverless-functions-base-path

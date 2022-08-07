@@ -1,0 +1,17 @@
+{
+  "region": "$AWS_REGION",
+  "environment": "$ENV",
+  "s3": {
+    "bucket": "$S3_BACKUP_BUCKET_NAME",
+    "root": "$S3_BACKUP_FOLDER_NAME"
+  },
+  "db": {
+    "host": "$DB_HOST",
+    "port": "$DB_PORT",
+    "name": "$DB_NAME",
+    "user": "$DB_USER",
+    "password": "$DB_PWD",
+    "schema": "public"
+  },
+  "encryptionKey": "$BACKUP_ENCRYPTION_KEY"
+}

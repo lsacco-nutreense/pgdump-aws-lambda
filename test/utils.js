@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const moment = require('moment')
-const utils = require('../lib/utils')
+const utils = require('../src/lib/utils')
 
 
 describe('Utils', () => {
